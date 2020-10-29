@@ -187,6 +187,8 @@ void test(const int N, const string &labyrinth_s) {
     convert(labyrinth_s, N, labyrinth, s, t);
     cout << (solveLabyrinth(labyrinth, N, s, t).empty() ? "insoluble" : "solvable") << endl;
     cout << endl;
+    delete[] buffer;
+    delete[] labyrinth;
 }
 
 int main() {

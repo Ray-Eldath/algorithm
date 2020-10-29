@@ -55,4 +55,44 @@
        labyrinth[i] = buffer + i * N;
    ```
 
+8. 第123页代码5.9，`release` 函数未定义。一种可能的实现如下（未测试）：
+
+   ```c++
+   template<typename TT>
+   static inline void release(TT *&p) {
+       if (std::is_array<TT>())
+           delete[] p;
+       else delete p;
+   }
+   ```
+
+9. 第133页代码5.19，二叉树后序遍历算法的迭代版可改进为更易理解的实现：
+
+   ```c++
+   inline void cal_undermost(iterator e, std::stack<iterator> &s) {
+       s.push(e);
+       while (e != nullptr) {
+           if (has_left(e))
+               s.push(e = e->left);
+           else
+               s.push(e = e->right);
+       }
+       s.pop();
+   }
    
+   void traverse_postorder_iterate(iterator x, Visitor visitor) {
+       std::stack<iterator> nodes;
+       if (x != nullptr) cal_undermost(x, nodes);
+   
+       while (!nodes.empty()) {
+           x = nodes.top();
+           nodes.pop();
+           visitor(x->data);
+   
+           if (is_left(x) && has_right(x->parent)) // 如果有右兄弟
+               cal_undermost(x->parent->right, nodes); // 入栈右兄弟下行至最底端的路径
+       }
+   }
+   ```
+   
+   相比书中的示例实现，个人认为此处给出的这一实现更易理解。`cal_undermost` 函数负责计算下行至最底端的路径（无论向哪个方向下行）并入栈。对于栈中的每一个元素（注意第一个元素是从初始节点开始最底端的元素），首先出栈并访问；再判断它是否有右兄弟，若有，列其右兄弟的下行路径并入栈。

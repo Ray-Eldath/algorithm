@@ -26,6 +26,7 @@ add_executable(4 4.h 4.cpp)
 add_executable(4.3.3 4.h 4.3.3.cpp)
 add_executable(4.4.2 4.h 4.4.2.cpp)
 add_executable(4.4.3 4.h 4.4.3.cpp)
+add_executable(5 5.h 5.cpp)
 
 add_executable(leetcode224 leetcode224.cpp)
 add_executable(leetcode51 leetcode51.cpp)
