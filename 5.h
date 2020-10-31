@@ -53,25 +53,15 @@ struct BinNode {
 
 template<typename T>
 class BinTree {
-private:
-    friend BinNode<T>;
-
+public:
     using iterator = typename BinNode<T>::iterator;
+
+private:
     using tree_iterator = BinTree<T> *;
     using Visitor = std::function<void(T)>;
-
     iterator m_root;
+
     size_t m_size;
-
-    static inline bool is_root(iterator x) { return !(x->parent); }
-
-    static inline bool is_left(iterator x) { return is_root(x) == false && x->parent->left == x; }
-
-    static inline bool has_left(iterator x) { return x->left != nullptr; }
-
-    static inline bool has_right(iterator x) { return x->right != nullptr; }
-
-    static inline bool is_right(iterator x) { return is_root(x) == false && x->parent->right == x; }
 
     inline iterator &from_parent_to(iterator x) {
         if (is_root(x))
@@ -118,6 +108,17 @@ private:
     }
 
 public:
+    static inline bool is_root(iterator x) { return !(x->parent); }
+
+    static inline bool is_leaf(iterator x) { return has_left(x) == false && has_right(x) == false; }
+
+    static inline bool is_left(iterator x) { return is_root(x) == false && x->parent->left == x; }
+
+    static inline bool is_right(iterator x) { return is_root(x) == false && x->parent->right == x; }
+
+    static inline bool has_left(iterator x) { return x->left != nullptr; }
+
+    static inline bool has_right(iterator x) { return x->right != nullptr; }
 
     BinTree() : m_size(0), m_root(nullptr) {}
 

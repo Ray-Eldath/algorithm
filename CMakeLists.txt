@@ -28,6 +28,10 @@ add_executable(4.4.2 4.h 4.4.2.cpp)
 add_executable(4.4.3 4.h 4.4.3.cpp)
 add_executable(5 5.h 5.cpp)
 
+add_executable(5.5.3 5.h 5.5.3.cpp)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/freq
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 add_executable(leetcode224 leetcode224.cpp)
 add_executable(leetcode51 leetcode51.cpp)
 add_executable(leetcode140 leetcode140.cpp)
