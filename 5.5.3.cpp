@@ -5,7 +5,7 @@
 #include "5.h"
 #include <vector>
 #include <fstream>
-#include <unordered_map>
+#include <map>
 
 using namespace std;
 
@@ -20,7 +20,7 @@ struct HuffmanChar {
 
 using HuffmanTree = BinTree<HuffmanChar>;
 using HuffmanForest = vector<HuffmanTree *>;
-using HuffmanTable = unordered_map<char, string>;
+using HuffmanTable = map<char, string>;
 
 const char CHARS_START_AT = 32;
 char N_CHARS = 0;
@@ -105,10 +105,7 @@ string decode(const string &input, HuffmanTree &tree) {
     while (i < input.size()) {
         auto node = tree.root();
         while (!HuffmanTree::is_leaf(node)) {
-            if (input[i] == '0')
-                node = node->left;
-            else if (input[i] == '1')
-                node = node->right;
+            node = input[i] == '0' ? node->left : node->right;
             i++;
         }
         r += node->data.ch;
