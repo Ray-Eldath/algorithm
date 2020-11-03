@@ -33,6 +33,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/freq
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(5-30 5-30.cpp)
+add_executable(6 6.h 6.cpp)
 
 add_executable(leetcode224 leetcode224.cpp)
 add_executable(leetcode51 leetcode51.cpp)
