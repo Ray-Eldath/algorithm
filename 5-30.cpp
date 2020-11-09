@@ -35,11 +35,25 @@ public:
             for (auto i = 0; i < str.size(); i++) {
                 auto node = c->next[str[i] - 'a'];
                 auto terminal = i == str.size() - 1;
-                if (node == nullptr || terminal)
+                if (node == nullptr)
                     node = new TrieNode(terminal);
+                if (terminal)
+                    node->terminal = true;
                 c->insert_at(str[i] - 'a', node);
                 c = node;
             }
+
+//            auto c = root;
+//            for (auto i = 0; i < str.size(); i++) {
+//                auto node = c->next[str[i] - 'a'];
+//                auto terminal = i == str.size() - 1;
+//                if (node == nullptr || terminal)
+//                    node = new TrieNode(terminal);
+//                      // 这样处理的问题在于，当原节点为终止节点时，如果直接
+//                      // 新建节点对象，那么原节点与其儿子的链接会丢失
+//                c->insert_at(str[i] - 'a', node);
+//                c = node;
+//            }
         }
     }
 

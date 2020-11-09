@@ -107,7 +107,7 @@ double calculate(const string &expression, stringstream &rpn) {
                 c++;
             } else if (p == '>') {
                 if (operands.size() < 2)
-                    throw std::invalid_argument("unmatched operator-operands pair at " + to_string(c));
+                    throw std::invalid_argument("unfinished term at " + to_string(c));
                 auto o1 = operands.pop(), o2 = operands.pop();
                 auto op = operators.pop();
                 operands.push(calc(char2enum(op), o2, o1));

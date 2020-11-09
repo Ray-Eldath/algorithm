@@ -32,18 +32,6 @@ public:
             c = node;
         }
         c->terminal = true;
-
-//        auto c = root;
-//        for (auto i = 0; i < word.size(); i++) {
-//            auto node = c->next[word[i] - 'a'];
-//            auto terminal = i == word.size() - 1;
-//            if (node == nullptr)
-//                node = new TrieNode(terminal);
-//            if (terminal)
-//                node->terminal = true;
-//            c->insert_at(word[i] - 'a', node);
-//            c = node;
-//        }
     }
 
     bool search(const string &word) {
