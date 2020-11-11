@@ -9,8 +9,10 @@
 
 #include <climits>
 #include <queue>
+#include <vector>
 #include <functional>
 #include <iostream>
+#include <stack>
 
 enum class VertexStatus {
     UNDISCOVERED, DISCOVERED, VISITED
@@ -23,13 +25,14 @@ enum class EdgeType {
 template<typename Tv>
 struct Vertex {
     Tv data;
-    int in_degree, out_degree, parent;
+    int in_degree, out_degree;
     VertexStatus status;
     int priority;
+    int d_time, f_time;
 
     explicit Vertex(const Tv &d = Tv()) : data(d), in_degree(0), out_degree(0),
                                           status(VertexStatus::UNDISCOVERED),
-                                          parent(0), priority(INT_MAX) {}
+                                          priority(INT_MAX) {}
 };
 
 template<typename Te>
@@ -64,11 +67,15 @@ public:
 
     inline int e() { return m_e; }
 
-    inline Tv &vertex(int i) { return V[i].data; }
+    inline Vertex<Tv> &vertex(int i) { return V[i]; }
 
     inline int &in_degree(int i) { return V[i].in_degree; }
 
     inline int &out_degree(int i) { return V[i].out_degree; }
+
+    inline int &d_time(int i) { return V[i].d_time; }
+
+    inline int &f_time(int i) { return V[i].f_time; }
 
     inline int first_nbr(int i) { return next_nbr(i, m_n); }
 
@@ -104,7 +111,7 @@ public:
 
         E.erase(E.cbegin() + i - 1);
         m_n--;
-        auto tv = vertex(i);
+        auto tv = vertex(i).data;
         V.erase(V.cbegin() + i - 1);
 
         for (auto j = 0; j < m_n; j++) {
@@ -118,7 +125,7 @@ public:
 
     EdgeType &type(int i, int j) { return E[i][j]->type; }
 
-    Te &edge(int i, int j) { return E[i][j]->data; }
+    Edge<Te> *edge(int i, int j) { return E[i][j]; }
 
     int &weight(int i, int j) { return E[i][j]->weight; }
 
@@ -130,7 +137,7 @@ public:
     }
 
     Te remove_edge(int i, int j) {
-        Te e = edge(i, j);
+        Te e = edge(i, j)->data;
         delete E[i][j];
         E[i][j] = nullptr;
         m_e--;
@@ -138,10 +145,10 @@ public:
         return e;
     }
 
-    using VertexVisitor = std::function<void(Tv)>;
-    using EdgeVisitor = std::function<void(Te)>;
+    using VertexVisitor = std::function<void(Vertex<Tv> &)>;
+    using EdgeVisitor = std::function<void(Edge<Te> &)>;
 
-    void BFS(int v, VertexVisitor vertex_visitor, EdgeVisitor edge_visitor = [](Te e) {}) {
+    void BFS(int v, VertexVisitor vertex_visitor, EdgeVisitor edge_visitor = [](Edge<Te> &e) {}) {
         std::queue<int> Q;
         status(v) = VertexStatus::DISCOVERED;
         Q.push(v);
@@ -151,17 +158,56 @@ public:
             Q.pop();
 
             for (auto u = first_nbr(c); u > -1; u = next_nbr(c, u)) {
-                edge_visitor(edge(c, u));
                 if (status(u) == VertexStatus::UNDISCOVERED) {
                     status(u) = VertexStatus::DISCOVERED;
                     Q.push(u);
                     type(c, u) = EdgeType::TREE;
                 } else
                     type(c, u) = EdgeType::CROSS;
+                edge_visitor(*edge(c, u));
             }
 
             vertex_visitor(vertex(c));
             status(c) = VertexStatus::VISITED;
+        }
+    }
+
+    void DFS(int v, VertexVisitor vertex_visitor, EdgeVisitor edge_visitor = [](Edge<Te> &e) {}) {
+        int clock = 0;
+        std::stack<int> S;
+        status(v) = VertexStatus::DISCOVERED;
+        d_time(v) = 0;
+        S.push(v);
+
+        auto t = m_n;
+        while (!S.empty()) {
+            auto c = S.top();
+
+            auto u = next_nbr(c, t);
+            if (u < 0) {
+                vertex_visitor(vertex(c));
+                S.pop();
+                status(c) = VertexStatus::VISITED;
+                f_time(c) = ++clock;
+                t = c;
+            } else {
+                auto us = status(u);
+                if (us == VertexStatus::UNDISCOVERED) {
+                    type(c, u) = EdgeType::TREE;
+                    status(u) = VertexStatus::DISCOVERED;
+                    d_time(u) = ++clock;
+                    S.push(u);
+                    t = m_n;
+                } else if (us == VertexStatus::DISCOVERED) {
+                    type(c, u) = EdgeType::BACKWARD;
+                    t = u;
+                } else {
+                    type(c, u) = d_time(c) < d_time(u) ? EdgeType::FORWARD : EdgeType::CROSS;
+                    t = u;
+                }
+
+                edge_visitor(*edge(c, u));
+            }
         }
     }
 };
