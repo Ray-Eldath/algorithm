@@ -141,7 +141,8 @@ public:
         delete E[i][j];
         E[i][j] = nullptr;
         m_e--;
-        in_degree(i)--;
+        out_degree(i)--;
+        in_degree(j)--;
         return e;
     }
 
@@ -172,7 +173,7 @@ public:
         }
     }
 
-    void DFS(int v, VertexVisitor vertex_visitor, EdgeVisitor edge_visitor = [](Edge<Te> &e) {}) {
+    void DFS_iterate(int v, VertexVisitor vertex_visitor, EdgeVisitor edge_visitor = [](Edge<Te> &e) {}) {
         int clock = 0;
         std::stack<int> S;
         status(v) = VertexStatus::DISCOVERED;
@@ -209,5 +210,32 @@ public:
                 edge_visitor(*edge(c, u));
             }
         }
+    }
+
+    std::vector<int> topological_sort() {
+        std::vector<int> r;
+        for (auto i = 0; i < m_n; i++)
+            if (vertex(i).in_degree == 0)
+                r.push_back(i);
+
+        int t = r.size() - 1;
+        while (t >= 0) {
+            auto c = r[t];
+            auto found = false;
+            for (auto u = first_nbr(c); u > -1; u = next_nbr(c, u)) {
+                auto v = vertex(u);
+                if (!(v.in_degree == 0 && v.out_degree == 0) && v.in_degree <= 1) { // 若存在该节点且仅有当前节点指向它
+//                    std::cout << u << std::endl;
+                    r.push_back(u);
+                    found = true;
+                }
+//                std::cout << c << "->" << u << std::endl;
+                remove_edge(c, u);
+            }
+
+            t = found ? r.size() - 1 : t - 1;
+        }
+
+        return r;
     }
 };

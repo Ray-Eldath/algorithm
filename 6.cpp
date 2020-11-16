@@ -25,7 +25,7 @@ int main() {
     gm1->insert_edge(10, 7, 6);
     gm1->insert_edge(11, 7, 2);
 
-    auto show_char = [](Vertex<char> c) { cout << c.data << "=" << static_cast<int>(c.status) << endl; };
+    auto show_char = [](Vertex<char> c) { cout << c.data << "-" << static_cast<int>(c.status) << endl; };
     auto show_int = [](Edge<int> i) { cout << i.data << "=" << static_cast<int>(i.type) << " "; };
 
 //    cout << gm->exists(0, 3) << " " << gm->exists(0, 4) << " " << gm->exists(0, 7) << endl;
@@ -47,5 +47,20 @@ int main() {
     gm2->insert_edge(6, 6, 0);
     gm2->insert_edge(7, 6, 2);
 
-    gm2->DFS(0, show_char, show_int);
+    auto gm3 = new GraphMatrix<char, int>();
+    for (auto c = 'A'; c <= 'G'; c++)
+        gm3->insert_vertex(c);
+
+    gm3->insert_edge(0, 0, 3);
+    gm3->insert_edge(0, 0, 2);
+    gm3->insert_edge(0, 1, 2);
+    gm3->insert_edge(0, 1, 6);
+    gm3->insert_edge(0, 2, 3);
+    gm3->insert_edge(0, 2, 4);
+    gm3->insert_edge(0, 2, 5);
+    gm3->insert_edge(0, 4, 5);
+    gm3->insert_edge(0, 6, 5);
+
+    for (auto i: gm3->topological_sort())
+        cout << i << " ";
 }
