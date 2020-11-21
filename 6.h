@@ -29,6 +29,7 @@ struct Vertex {
     VertexStatus status;
     int priority;
     int d_time, f_time;
+    int parent;
 
     explicit Vertex(const Tv &d = Tv()) : data(d), in_degree(0), out_degree(0),
                                           status(VertexStatus::UNDISCOVERED),
@@ -53,9 +54,20 @@ private:
     std::vector<std::vector<edge_iterator>> E;
 
     int m_n, m_e;
+    bool m_digraph;
+
+    void insert_edge__(const Te &data, int i, int j, int w = INT_MAX) {
+        E[i][j] = new Edge<Te>(data, w);
+        m_e++;
+        out_degree(i)++;
+        in_degree(j)++;
+    }
 
 public:
-    explicit GraphMatrix() { m_n = m_e = 0; }
+    explicit GraphMatrix(bool digraph = true) {
+        m_n = m_e = 0;
+        m_digraph = digraph;
+    }
 
     ~GraphMatrix() {
         for (auto &r : E)
@@ -68,6 +80,8 @@ public:
     inline int e() { return m_e; }
 
     inline Vertex<Tv> &vertex(int i) { return V[i]; }
+
+    inline int &parent(int i) { return V[i].parent; }
 
     inline int &in_degree(int i) { return V[i].in_degree; }
 
@@ -130,10 +144,9 @@ public:
     int &weight(int i, int j) { return E[i][j]->weight; }
 
     void insert_edge(const Te &data, int i, int j, int w = INT_MAX) {
-        E[i][j] = new Edge<Te>(data, w);
-        m_e++;
-        out_degree(i)++;
-        in_degree(j)++;
+        if (!m_digraph)
+            insert_edge__(data, j, i, w);
+        insert_edge__(data, i, j, w);
     }
 
     Te remove_edge(int i, int j) {
@@ -171,6 +184,25 @@ public:
             vertex_visitor(vertex(c));
             status(c) = VertexStatus::VISITED;
         }
+    }
+
+    void DFS(int v, int clock, VertexVisitor vertex_visitor, EdgeVisitor edge_visitor = [](Edge<Te> &e) {}) {
+        d_time(v) = ++clock;
+        status(v) = VertexStatus::DISCOVERED;
+
+        for (auto u = first_nbr(v); u > -1; u = next_nbr(u, v)) {
+            auto s = status(u);
+            if (s == VertexStatus::UNDISCOVERED) {
+                type(v, u) = EdgeType::TREE;
+                DFS(u, clock, vertex_visitor, edge_visitor);
+            } else if (s == VertexStatus::DISCOVERED)
+                type(v, u) = EdgeType::BACKWARD;
+            else type(v, u) = d_time(v) > d_time(u) ? EdgeType::CROSS : EdgeType::FORWARD;
+        }
+
+
+        status(v) = VertexStatus::VISITED;
+        f_time(v) = ++clock;
     }
 
     void DFS_iterate(int v, VertexVisitor vertex_visitor, EdgeVisitor edge_visitor = [](Edge<Te> &e) {}) {
@@ -213,28 +245,78 @@ public:
     }
 
     std::vector<int> topological_sort() {
-        std::vector<int> r;
+        std::vector<int> S, R;
         for (auto i = 0; i < m_n; i++)
             if (vertex(i).in_degree == 0)
-                r.push_back(i);
+                S.push_back(i);
 
-        int t = r.size() - 1;
-        while (t >= 0) {
-            auto c = r[t];
-            auto found = false;
+        while (!S.empty()) {
+            auto c = S.back();
+            S.pop_back();
+
             for (auto u = first_nbr(c); u > -1; u = next_nbr(c, u)) {
                 auto v = vertex(u);
-                if (!(v.in_degree == 0 && v.out_degree == 0) && v.in_degree <= 1) { // 若存在该节点且仅有当前节点指向它
-//                    std::cout << u << std::endl;
-                    r.push_back(u);
-                    found = true;
-                }
-//                std::cout << c << "->" << u << std::endl;
+                if (!(v.in_degree == 0 && v.out_degree == 0) && v.in_degree <= 1)
+                    S.push_back(u);
                 remove_edge(c, u);
             }
-
-            t = found ? r.size() - 1 : t - 1;
+            R.push_back(c);
         }
+
+        return R;
+
+//        std::vector<int> R;
+//        for (auto i = 0; i < m_n; i++)
+//            if (vertex(i).in_degree == 0)
+//                R.push_back(i);
+//
+//        int t = R.size() - 1;
+//        while (t >= 0) {
+//            auto c = R[t];
+//            auto found = false;
+//            for (auto u = first_nbr(c); u > -1; u = next_nbr(c, u)) {
+//                auto v = vertex(u);
+//                if (!(v.in_degree == 0 && v.out_degree == 0) && v.in_degree <= 1) { // 若存在该节点且仅有当前节点指向它
+//                    std::cout << u << std::endl;
+//                    R.push_back(u);
+//                    found = true;
+//                }
+//                std::cout << c << "->" << u << std::endl;
+//                remove_edge(c, u);
+//            }
+//
+//            t = found ? R.size() - 1 : t - 1;
+//        }
+//
+//        return R;
+    }
+
+#define hca(x) (f_time(x))
+
+    void bcc(int v, int &clock, std::vector<int> &r) {
+        hca(v) = d_time(v) = ++clock;
+        status(v) = VertexStatus::DISCOVERED;
+
+        for (auto u = first_nbr(v); u > -1; u = next_nbr(v, u)) {
+            auto s = status(u);
+            if (s == VertexStatus::UNDISCOVERED) {
+                parent(u) = v;
+                bcc(u, clock, r);
+
+                if (hca(u) < d_time(v)) // 如果子节点能够访问比当前节点更高的节点，那么
+                    hca(v) = std::min(hca(v), hca(u)); // “向上传递”子节点的hca
+                else
+                    r.push_back(v); // 否则，当前节点就是一个关节点
+            } else if (s == VertexStatus::DISCOVERED && u != parent(v))
+                hca(v) = std::min(hca(v), d_time(u));
+        }
+    }
+
+    std::vector<int> BCC(int v) {
+        int clock = 0;
+        std::vector<int> r;
+        bcc(v, clock, r);
+        r.erase(r.end() - 1);
 
         return r;
     }

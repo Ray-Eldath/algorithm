@@ -7,8 +7,6 @@
 
 #endif //ALGORITHM_3_H
 
-#include "2-34.h"
-
 #include <iostream>
 
 template<typename T>
