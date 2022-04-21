@@ -3,6 +3,8 @@ project(algorithm)
 
 set(CMAKE_CXX_STANDARD 11)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+
 add_executable(ccf2019121 ccf2019121.cpp)
 add_executable(ccf2019122 ccf2019122.cpp)
 add_executable(ccf2019091 ccf2019091.cpp)
@@ -50,3 +52,9 @@ add_executable(leetcode167 leetcode167.cpp)
 add_executable(leetcode557 leetcode557.cpp)
 add_executable(leetcode3 leetcode3.cpp)
 add_executable(leetcode567 leetcode567.cpp)
+add_executable(leetcode733 leetcode733.cpp)
+add_executable(leetcode695 leetcode695.cpp)
+add_executable(leetcode617 leetcode617.cpp)
+add_executable(leetcode102 leetcode102.cpp)
+add_executable(leetcode116 leetcode116.cpp)
+add_executable(leetcode994 leetcode994.cpp)
