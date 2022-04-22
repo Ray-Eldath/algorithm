@@ -1,9 +1,8 @@
 //
 // Created by ray-eldath on 22-4-22.
 //
-#include <vector>
 #include <queue>
-#include <iostream>
+#include "utils.h"
 
 using namespace std;
 
@@ -43,12 +42,7 @@ int orangesRotting(vector<vector<int>> &grid) {
 }
 
 void test(initializer_list<initializer_list<int>> xs) {
-    vector<vector<int>> vs;
-    for (const auto &item: xs) {
-        vector<int> v{item};
-        vs.emplace_back(v);
-    }
-    cout << orangesRotting(vs) << endl;
+    cout << mapMatrixOf<int, int>(xs, orangesRotting) << endl;
 }
 
 int main() {

@@ -5,8 +5,6 @@
 #ifndef ALGORITHM_UTILS_H
 #define ALGORITHM_UTILS_H
 
-#endif //ALGORITHM_UTILS_H
-
 #include <vector>
 #include <iostream>
 #include <memory>
@@ -34,6 +32,16 @@ void printInplaceVector(std::initializer_list<T> ts, F f) {
     printVector(v);
 }
 
+template<typename T, typename F_RETURN, typename F>
+F_RETURN mapMatrixOf(std::initializer_list<std::initializer_list<T>> xs, F f) {
+    std::vector<std::vector<T>> vs;
+    for (const auto &item: xs) {
+        std::vector<T> v{item};
+        vs.emplace_back(v);
+    }
+    return f(vs);
+}
+
 template<typename F>
 auto measure(F f) -> decltype(f()) {
     auto start = std::chrono::high_resolution_clock::now();
@@ -43,3 +51,5 @@ auto measure(F f) -> decltype(f()) {
     std::cout << "[time: " << duration.count() << "ms] ";
     return r;
 }
+
+#endif //ALGORITHM_UTILS_H

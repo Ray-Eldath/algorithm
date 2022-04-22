@@ -8,7 +8,7 @@ using namespace std;
 
 int bfs(vector<vector<int>> &grid, int r, int c) {
     queue<pair<int, int>> q;
-    q.emplace(make_pair(r, c));
+    q.emplace(r, c);
     int t = 0;
     while (!q.empty()) {
         const auto n = q.front();
@@ -17,10 +17,10 @@ int bfs(vector<vector<int>> &grid, int r, int c) {
         if (i >= 0 && i < grid.size() && j >= 0 && j < grid[0].size() && grid[i][j] == 1) {
             t++;
             grid[i][j] = 0;
-            q.emplace(make_pair(n.first + 1, n.second));
-            q.emplace(make_pair(n.first - 1, n.second));
-            q.emplace(make_pair(n.first, n.second + 1));
-            q.emplace(make_pair(n.first, n.second - 1));
+            q.emplace(n.first + 1, n.second);
+            q.emplace(n.first - 1, n.second);
+            q.emplace(n.first, n.second + 1);
+            q.emplace(n.first, n.second - 1);
         }
     }
     return t;
