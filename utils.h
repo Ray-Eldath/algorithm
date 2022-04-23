@@ -32,6 +32,21 @@ void printInplaceVector(std::initializer_list<T> ts, F f) {
     printVector(v);
 }
 
+template<typename T>
+void printDigits(std::vector<std::vector<T>> ts) {
+    for (const auto &is: ts) {
+        for (const auto &i: is)
+            std::cout << i;
+        std::cout << std::endl;
+    }
+}
+
+template<typename T>
+T removeConst(const T ts) {
+    T rts(ts);
+    return rts;
+}
+
 template<typename T, typename F_RETURN, typename F>
 F_RETURN mapMatrixOf(std::initializer_list<std::initializer_list<T>> xs, F f) {
     std::vector<std::vector<T>> vs;
